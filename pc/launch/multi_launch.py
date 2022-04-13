@@ -49,7 +49,7 @@ def generate_launch_description():
     launch_dir = os.path.join(bringup_dir, 'launch')
 
     # Names and poses of the robots
-    robots = generate_robot_list(5)
+    robots = generate_robot_list(3)
 
     # On this example all robots are launched with the same settings
     autostart = LaunchConfiguration('autostart')
