@@ -16,9 +16,6 @@ Custom arguments can be made to this file if it is required.
 
 **pc** Launches Rviz and displays each robot. It also executes the global planner node required for navigation.
 
-**remote** Launches the robots in gazebo, calling everything required from the Navigation2 package 
-
-
 ## Requirements
 
 Before launching these packages, *Navigation2*, *Nav2-bringup*, and, for the time being, *turtlebot3* must be installed as Debian packages:
