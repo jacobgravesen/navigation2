@@ -13,7 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from argparse import Namespace
 import time
 from enum import Enum
 
@@ -33,7 +32,7 @@ from rclpy.qos import QoSProfile
 
 
 class NavigationResult(Enum):
-    UKNOWN = 0
+    UNKNOWN = 0
     SUCCEEDED = 1
     CANCELED = 2
     FAILED = 3 
@@ -44,6 +43,7 @@ class BasicNavigator(Node):
         super().__init__(node_name='basic_navigator')
         self.initial_pose = PoseStamped()
         self.initial_pose.header.frame_id = 'map'
+
         self.goal_handle = None
         self.result_future = None
         self.feedback = None
@@ -96,7 +96,7 @@ class BasicNavigator(Node):
         goal_msg = NavigateThroughPoses.Goal()
         goal_msg.poses = poses
 
-        self.info('Navigating with ' + str(len(goal_msg.poses)) + ' goals.' + '...')
+        self.info('Navigating with ' + str(len(goal_msg.poses)) + ' goals:')
         send_goal_future = self.nav_through_poses_client.send_goal_async(goal_msg,
                                                                          self._feedbackCallback)
         rclpy.spin_until_future_complete(self, send_goal_future)
@@ -183,14 +183,15 @@ class BasicNavigator(Node):
         return self.feedback
 
     def getResult(self):
-        if self.status == GoalStatus.STATUS_SUCCEEDED:
-            return NavigationResult.SUCCEEDED
-        elif self.status == GoalStatus.STATUS_ABORTED:
-            return NavigationResult.FAILED
-        elif self.status == GoalStatus.STATUS_CANCELED:
-            return NavigationResult.CANCELED
-        else:
-            return NavigationResult.UNKNOWN
+        return self.status
+        # if self.status == GoalStatus.STATUS_SUCCEEDED:
+        #     return NavigationResult.SUCCEEDED
+        # elif self.status == GoalStatus.STATUS_ABORTED:
+        #     return NavigationResult.FAILED
+        # elif self.status == GoalStatus.STATUS_CANCELED:
+        #     return NavigationResult.CANCELED
+        # else:
+        #     return NavigationResult.UNKNOWN
 
     def waitUntilNav2Active(self, namespace):
         self._waitForNodeToActivate(namespace + 'amcl')

@@ -35,10 +35,10 @@ def generate_robot_list(num_robots):
 
     robot_list = []
 
-    for i in range(num_robots):
+    for i in range(1, num_robots + 1):
         robot_name = "robot" + str(i)
         x_pos = float(i)
-        robot_list.append({'name': robot_name, 'x_pose': x_pos, 'y_pose': 0.0, 'z_pose': 0.01})
+        robot_list.append({'name': robot_name, 'x_pose': x_pos, 'y_pose': 0.5, 'z_pose': 0.01})
 
     return robot_list
 
@@ -58,7 +58,7 @@ def generate_launch_description():
     log_settings = LaunchConfiguration('log_settings', default='true')
 
     declare_autostart_cmd = DeclareLaunchArgument(
-        'autostart', default_value='false',
+        'autostart', default_value='True', #was false
         description='Automatically startup the stacks')
 
     declare_rviz_config_file_cmd = DeclareLaunchArgument(
@@ -93,6 +93,7 @@ def generate_launch_description():
                 launch_arguments={
                                   'namespace': TextSubstitution(text=robot['name']),
                                   'use_namespace': 'True',
+                                  'autostart': autostart,
                                   'rviz_config': rviz_config_file}.items()),
 
             IncludeLaunchDescription(
