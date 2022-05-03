@@ -26,15 +26,15 @@ class PositionInfo(Node):
         robot_list = {}
         initial_list = {}
         goal_list = {}
-        next_goal_list = {}
+        eta_list = {}
 
         for i in range(1, num_robots + 1):
             robot_list[f"robot{i}"] = BasicNavigator()
             initial_list[f"robot{i}"] = PoseStamped()
             goal_list[f"robot{i}"] = PoseStamped()
-            next_goal_list[f"robot{i}"] = 0
+            eta_list[f"time_robot{i}"] = str()
 
-        return robot_list, initial_list, goal_list, next_goal_list    
+        return robot_list, initial_list, goal_list, eta_list    
 
     def generate_initial_pose(self, robot_list, initial_list):
         for i in range(1, len(robot_list) + 1):

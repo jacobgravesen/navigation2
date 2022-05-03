@@ -57,7 +57,7 @@ def main():
     rclpy.init()
 
     # Define number of robots
-    robot_num = 5
+    robot_num = 3
 
     goal = generate_random_goals(robot_num)
     # Populate lists with namespaced class instances
@@ -90,11 +90,11 @@ def main():
         goal_list[f"robot{i}"].pose.position.y = goal[i-1][0][1]
         goal_list[f"robot{i}"].pose.orientation.w = 1.0 # Might be useful to change this depending on carrier agent
         robot_list[f"robot{i}"].goToPose(goal_list[f"robot{i}"])
-        time.sleep(20.0)
+        time.sleep(5.0)
 
 
     i = 0
-    while not robot_list[f"robot{1}"].isNavComplete():
+    #while not robot_list[f"robot{1}"].isNavComplete():
         ################################################
         #
         # Implement some code here for your application!
@@ -102,12 +102,14 @@ def main():
         ################################################
 
         # Do something with the feedback
+    while True:
         i = i + 1
         feedback = robot_list[f"robot{1}"].getFeedback()
+        print(feedback)
         if feedback and i % 5 == 0:
             print('Estimated time of arrival: ' + '{0:.0f}'.format(
-                  Duration.from_msg(feedback.estimated_time_remaining).nanoseconds / 1e9)
-                  + ' seconds.')
+                    Duration.from_msg(feedback.estimated_time_remaining).nanoseconds / 1e9)
+                    + ' seconds.')
 
     # Do something depending on the return code
     result = robot_list[f"robot{1}"].getResult()
@@ -118,8 +120,8 @@ def main():
         print('Goal was canceled!')
     elif result == GoalStatus.STATUS_ABORTED:
         print('Goal failed!')
-    else:
-        print('Unexpected error')
+    #else:
+    #    print('Unexpected error')
 
 
 
