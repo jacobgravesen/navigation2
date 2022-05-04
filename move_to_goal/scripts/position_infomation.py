@@ -3,6 +3,7 @@
 from rclpy.node import Node
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
 from robot_navigator import BasicNavigator, NavigationResult
+from rclpy.duration import Duration
 
 import cv2
 from action_msgs.msg import GoalStatus
@@ -13,43 +14,54 @@ import random
 class PositionInfo(Node):
     def __init__(self):
         super().__init__(node_name='position_info')
-        # self.initial_pose = PoseStamped()
-        # self.initial_pose.header.frame_id = 'map'
 
-        # self.goal_handle = None
-        # self.result_future = None
-        # self.feedback = None
-        # self.status = None
-        # self.namespace = ''
 
-    def generate_lists(self, num_robots): #0 = robot_list, 1 = initial_list, 2 = goal_list, 3 = next_goal_list
+
+    def gen_lists(num_robots):
+
         robot_list = {}
         initial_list = {}
         goal_list = {}
         eta_list = {}
 
-        for i in range(1, num_robots + 1):
-            robot_list[f"robot{i}"] = BasicNavigator()
-            initial_list[f"robot{i}"] = PoseStamped()
-            goal_list[f"robot{i}"] = PoseStamped()
-            eta_list[f"time_robot{i}"] = str()
+        for robot in range(1, num_robots + 1):
+            robot_list[f"robot{robot}"] = BasicNavigator("robot" + str(robot) + "/")
+            initial_list[f"robot{robot}"] = PoseStamped()
+            goal_list[f"robot{robot}"] = PoseStamped()
+            eta_list[f"robot{robot}"] = str()
+        
+        return robot_list, initial_list, goal_list, eta_list
 
-        return robot_list, initial_list, goal_list, eta_list    
 
-    def generate_initial_pose(self, robot_list, initial_list):
-        for i in range(1, len(robot_list) + 1):
-            namespace = "robot" + str(i) + "/"
-            robot_list[f"robot{i}"].createSubscriptions(namespace)
-            initial_list[f"robot{i}"].header.frame_id = 'map'
-            initial_list[f"robot{i}"].header.stamp = robot_list[f"robot{i}"].get_clock().now().to_msg()
-            initial_list[f"robot{i}"].pose.position.x = float(i) - 1
-            initial_list[f"robot{i}"].pose.position.y = -0.5
-            initial_list[f"robot{i}"].pose.orientation.z = 0.0 # Just initial, may not need to be changed
-            initial_list[f"robot{i}"].pose.orientation.w = 1.0 # Just initial, may not need to be changed
-            robot_list[f"robot{i}"].setInitialPose(initial_list[f"robot{i}"])
 
-        for i in range(1, len(robot_list) + 1):
-            robot_list[f"robot{i}"].waitUntilNav2Active(namespace)  
+    def set_initial_pose(robot_list, initial_list, num_robots):
+        for robot in range(1, num_robots + 1):
+            initial_list[f"robot{robot}"].header.frame_id = 'map'
+            initial_list[f"robot{robot}"].header.stamp = robot_list[f"robot{robot}"].get_clock().now().to_msg()
+            initial_list[f"robot{robot}"].pose.position.x = float(robot) - 1
+            initial_list[f"robot{robot}"].pose.position.y = -0.5
+            initial_list[f"robot{robot}"].pose.orientation.z = 0.0
+            initial_list[f"robot{robot}"].pose.orientation.w = 1.0
+            robot_list[f"robot{robot}"].setInitialPose(initial_list[f"robot{robot}"])
+
+        for robot in range(1, num_robots + 1):
+            robot_list[f"robot{robot}"].waitUntilNav2Active("robot" + str(robot) + "/")
+
+
+
+    def publish_goals(robot_list, goal_list, goals, num_robots):
+        for robot in range(1, num_robots + 1):
+            goal_poses = []
+            for k in range(len(goals[robot-1])):
+                goal_list[f"robot{robot}"].header.frame_id = 'map'
+                goal_list[f"robot{robot}"].header.stamp = robot_list[f"robot{robot}"].get_clock().now().to_msg()
+                goal_list[f"robot{robot}"].pose.position.x = goals[robot-1][k][0]
+                goal_list[f"robot{robot}"].pose.position.y = goals[robot-1][k][1]
+                goal_list[f"robot{robot}"].pose.orientation.w = 1.0
+                goal_poses.append(goal_list[f"robot{robot}"])
+            robot_list[f"robot{robot}"].goThroughPoses(goal_poses)
+
+
 
     def generate_random_goals(self, num_robots, image):
 
@@ -75,32 +87,27 @@ class PositionInfo(Node):
             goal.append(localgoal)
 
         return goal
-    
-    def publish_goals_iteratively(self, robot_list, goal_list, goal_x, goal_y, goal_w):
-        for i in range(1, len(robot_list) + 1):
-            goal_list[f"robot{i}"].header.frame_id = 'map'
-            goal_list[f"robot{i}"].header.stamp = robot_list[f"robot{i}"].get_clock().now().to_msg()
-            goal_list[f"robot{i}"].pose.position.x = goal_x
-            goal_list[f"robot{i}"].pose.position.y = goal_y
-            goal_list[f"robot{i}"].pose.orientation.w = goal_w
-            robot_list[f"robot{i}"].goToPose(goal_list[f"robot{i}"])
 
     
-    def publish_goals(self, robot_list, goal_list, goal_x, goal_y, goal_w, robot):
-            goal_list[f"robot{robot}"].header.frame_id = 'map'
-            goal_list[f"robot{robot}"].header.stamp = robot_list[f"robot{robot}"].get_clock().now().to_msg()
-            goal_list[f"robot{robot}"].pose.position.x = goal_x
-            goal_list[f"robot{robot}"].pose.position.y = goal_y
-            goal_list[f"robot{robot}"].pose.orientation.w = goal_w
-            robot_list[f"robot{robot}"].goToPose(goal_list[f"robot{robot}"])
+    def get_feedback(robot_list, eta_list, num_robots):
+        for robot in range(1, num_robots + 1):
+            
+            while not robot_list[f"robot{robot}"].isNavComplete():
 
-    def create_goals(self, robot_list, goal_list, goals, robot):
-        goal_poses = []
-        for k in range(len(goals[robot-1])):
-            goal_list[f"robot{robot}"].header.frame_id = 'map'
-            goal_list[f"robot{robot}"].header.stamp = robot_list[f"robot{robot}"].get_clock().now().to_msg()
-            goal_list[f"robot{robot}"].pose.position.x = goals[robot-1][k][0]
-            goal_list[f"robot{robot}"].pose.position.y = goals[robot-1][k][1]
-            goal_list[f"robot{robot}"].pose.orientation.w = 1.0
-            goal_poses.append(goal_list[f"robot{robot}"])
-        return goal_poses
+                # Do something with the feedback
+                i = i + 1
+                feedback = robot_list[f"robot{robot}"].getFeedback()
+                if feedback and i % 5 == 0:
+                    eta_list[f"robot_time{robot}"] = '{0:.0f}'.format(Duration.from_msg(feedback.estimated_time_remaining).nanoseconds / 1e9)
+                    print("ETA of robot" + str(robot) + " " '{0:.0f}'.format(
+                        Duration.from_msg(feedback.estimated_time_remaining).nanoseconds / 1e9)
+                        + ' seconds.')
+
+                    # Some navigation timeout to demo cancellation
+                    if Duration.from_msg(feedback.navigation_time) > Duration(seconds=600.0):
+                        print("WOW, it takes more than 10 minutes to go to this goal!")
+                break
+
+
+ #   def check_path_validity():
+ #       for robot in range(1, num_robots + 1):
