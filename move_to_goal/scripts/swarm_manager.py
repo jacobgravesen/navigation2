@@ -30,7 +30,7 @@ def main():
     Info.publish_goals(robot_list, goal_list, goals, num_robots)
 
 
-    # sanity check a valid path exists: Make this work with multiple robots...
+    # Sanity check a valid path exists: Make this work with multiple robots...
     # path = robot_list[i].getPath(initial_pose, goal_pose)
 
 
