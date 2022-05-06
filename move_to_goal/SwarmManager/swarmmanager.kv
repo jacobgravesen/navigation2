@@ -1,0 +1,180 @@
+#:import Label kivy.uix.label.Label
+
+ScreenManager: # The ScreenManager manages all the different screens.
+    MainMenu:
+    MainMenuOptionSwarmInfo:
+    MainMenuOptionInitializeSwarm:
+
+<MainMenu>:
+    name: 'mainmenu'
+    orientation: "vertical"
+
+    NonSpecificBoxLayout:
+        orientation: "horizontal"
+        size_hint: 1, .1
+        HLButton:
+            size_hint: 1, 1
+            color: 0.85,0.85,0.85,1
+            text: 'SwarmInfo'
+            background_color:  	0.129, 0.129, 0.133, 1
+            on_press: root.manager.current = 'swarminfo'
+            background_normal: ''
+
+        HLButton:
+            size_hint: 1, 1
+            color: 0.85,0.85,0.85,1
+            text: 'Initialize Swarm'
+            background_color:  	0.129, 0.129, 0.133, 1
+            on_press: root.manager.current = 'initializeswarm'
+            background_normal: ''
+
+    TurtleBotLogo:
+
+<TurtleBotLogo>: # The Turtlebot Logo For The Main Menu
+    Image:
+        source: "images/Turtlebot3_DarkMode_Logo.png"
+
+
+<MainMenuOptionSwarmInfo>: # The First Menu Option. Here You See Info About The Swarm.
+    name: 'swarminfo'
+    orientation: "vertical"
+
+    TopButtonsSpace:
+        HLButton:
+            size_hint: 1, 1
+            color: 0.85,0.85,0.85,1
+            text: 'Back'
+            background_color:  	0.129, 0.129, 0.133, 1
+            on_press: root.manager.current = 'mainmenu'
+            background_normal: ''
+        Label:
+
+
+    MainMenuOptionSwarmInfoBottom:
+
+<TopButtonsSpace@BoxLayout>: # This BoxLayout will be used to arrange buttons on top of menus.
+    orientation: "horizontal"
+    size_hint: 1, .1
+
+<NonSpecificBoxLayout@BoxLayout>: # This BoxLayout will be used whenever we need a generic BoxLayout.
+
+<MainMenuOptionSwarmInfoBottom>:
+    orientation: "horizontal"
+    BoxLayout:
+        orientation: "vertical"
+        HLButton:
+            size_hint: 1, 1
+            color: 0.85,0.85,0.85,1
+            text: 'Generate Random Goals'
+            background_color:  	0.129, 0.129, 0.133, 1
+            on_press: root.generate_random_goals()
+            background_normal: ''
+        HLButton:
+            id: publish_goals_id
+            size_hint: 1, 1
+            color: 0.85,0.85,0.85,1
+            text: 'Publish Goals'
+            background_color:  	0.129, 0.129, 0.133, 1
+            on_press: root.go_to_goals_threaded()
+            background_normal: ''
+        HLButton:
+            size_hint: 1, 1
+            color: 0.85,0.85,0.85,1
+            text: 'Get Feedback'
+            background_color:  	0.129, 0.129, 0.133, 1
+            on_press: root.threaded_get_feedback()
+            background_normal: ''
+
+    ScrollViewSwarmMenuETA:
+
+<ScrollViewSwarmMenuETA@ScrollView>:
+    SwarmMenuRobotInfo:
+        size_hint: 1, None
+        height: self.minimum_height
+
+
+
+<SwarmMenuRobotInfo>:
+    cols: 1
+    row_default_height: '48dp'
+    row_force_default: True
+    spacing: 10, 10
+    padding: 10, 10
+    Label:
+        id: Robot1
+        text: ""
+        # on_press: root.press()
+    Label:
+        id: Robot2
+        text: ""
+    Label:
+        id: Robot3
+        text: ""
+    Label:
+        id: Robot4
+        text: ""
+    Label:
+        id: Robot5
+        text: ""
+    Label:
+        id: Robot6
+        text: ""
+    Label:
+        id: Robot7
+        text: ""
+    Label:
+        id: Robot8
+        text: ""
+    Label:
+        id: Robot9
+        text: ""
+    Label:
+        id: Robot10
+        text: ""
+
+
+
+    # cols: 2
+
+        # cols: 2 # Might be redundant. Test before releasing.
+        # row_default_height: '48dp'
+        # row_force_default: True
+        # spacing: 10, 10
+        # padding: 10, 10
+
+        # add these two lines
+        # size_hint_y: None
+        #height: self.minimum_height
+
+
+<MainMenuOptionInitializeSwarm>:
+    name: 'initializeswarm'
+    orientation: "vertical"
+
+    TopButtonsSpace:
+        size_hint: 1, .1
+        HLButton:
+            size_hint: 1, 1
+            color: 0.85,0.85,0.85,1
+            text: 'Back'
+            background_color:  	0.129, 0.129, 0.133, 1
+            on_press: root.manager.current = 'mainmenu'
+            background_normal: ''
+        HLButton:
+            size_hint: 1, 1
+            color: 0.85,0.85,0.85,1
+            text: 'Set Initial Poses'
+            background_color:  	0.129, 0.129, 0.133, 1
+            on_press: root.set_initial_poses_threaded()
+            background_normal: ''
+    BoxLayout:
+        oritentation: "horizontal"
+        Label:
+            text: "Swarm Manager v.Alpha 1.0.7"
+            font_size: 32
+            color: 0.2, 0.63, 0.1, 1 # <-----------
+            canvas.before:
+                Color:
+                    rgba: 0.2, 0.63, 0.1, 1
+
+
